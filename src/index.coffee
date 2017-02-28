@@ -14,25 +14,39 @@ class Encrypter extends Transform
     @key = options.key
 
 
+  getRandomBytes: (length) ->
+    crypto.randomBytes(length)
+
+
   initialize: () ->
     self  = @
-    keys = crypto.randomBytes(16 + @key_length/8)
+    keys = @getRandomBytes(16 + @key_length/8)
     iv = keys.slice(0, 16)
     key = keys.slice(16)
 
+    ## Make a regular cipher object. This handles the writing of all
+    ## subsequent data.
     @cipher = crypto.createCipheriv(@algorithm, key, iv)
     @cipher.on 'data', (buffer) ->
       console.log 'cipher data', buffer
       self.push buffer
     @cipher.on 'error', (error) ->
       console.log 'cipher error', error
-    @cipher.on 'end', () ->
-      console.log 'cipher end'
+
+    ## Now, we need to manage the RSA handling of the AES key.
+    
 
     header = Buffer.alloc(4096)
     index = 0
     index = header.writeInt16LE(0, index)
-    index = index + header.write("<header #{@algorithm}>", index, 'utf8')
+    index = header.writeInt16LE(@algorithm.length, index)
+    index = index + header.write(@algorithm, index, 'latin1')
+    index = header.writeInt16LE(key.length, index)
+    header.fill(key, index, index + key.length)
+    index = index + key.length
+    index = header.writeInt16LE(iv.length, index)
+    header.fill(iv, index, index + iv.length)
+    index = index + iv.length
 
     ## Write the count back
     header.writeInt16LE(index, 0)
