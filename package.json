@@ -2,9 +2,8 @@
   "name": "node-secure-stream",
   "version": "0.1.0",
   "description": "Stream-based encryption for large amounts of data",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "test": "mocha --sort --recursive --compilers coffee:coffee-script/register ./test",
     "build": "coffee -b -o lib src"
   },
@@ -12,12 +11,14 @@
     "type": "git",
     "url": "git+https://github.com/morungos/node-secure-stream.git"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "chai": "^3.5.0",
     "coffee-script": "^1.10.0",
-    "mocha": "^3.0.2"
+    "concat-stream": "^1.6.0",
+    "log4js": "^1.1.0",
+    "mocha": "^3.0.2",
+    "string-to-stream": "^1.1.0"
   },
   "author": "Stuart Watt <stuart@morungos.com>",
   "license": "MIT",
