@@ -11,7 +11,11 @@ class Encrypter extends Transform
     @algorithm ?= 'AES-256-CBC'
     @key_length = options.key_length
     @key_length ?= 256
+    @public_key = options.public_key
     @key = options.key
+
+    if !@public_key
+      throw new Error("Missing public key")
 
 
   getRandomBytes: (length) ->
@@ -34,16 +38,16 @@ class Encrypter extends Transform
       console.log 'cipher error', error
 
     ## Now, we need to manage the RSA handling of the AES key.
-    
+    encrypted_key = crypto.publicEncrypt(@public_key, key)
 
     header = Buffer.alloc(4096)
     index = 0
     index = header.writeInt16LE(0, index)
     index = header.writeInt16LE(@algorithm.length, index)
     index = index + header.write(@algorithm, index, 'latin1')
-    index = header.writeInt16LE(key.length, index)
-    header.fill(key, index, index + key.length)
-    index = index + key.length
+    index = header.writeInt16LE(encrypted_key.length, index)
+    header.fill(encrypted_key, index, index + encrypted_key.length)
+    index = index + encrypted_key.length
     index = header.writeInt16LE(iv.length, index)
     header.fill(iv, index, index + iv.length)
     index = index + iv.length
