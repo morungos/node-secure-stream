@@ -27,6 +27,8 @@ class Encrypter extends Transform
     keys = @getRandomBytes(16 + @key_length/8)
     iv = keys.slice(0, 16)
     key = keys.slice(16)
+    console.log "KEY", key
+    console.log "IV", iv
 
     ## Make a regular cipher object. This handles the writing of all
     ## subsequent data.
@@ -80,19 +82,70 @@ class Encrypter extends Transform
       callback()
 
 
+
 class Decrypter extends Transform
 
   constructor: (options) ->
     super(options)
     @header_read = false
-    @algorithm = options.algorithm
-    @algorithm ?= 'AES-256-CBC'
     @key = options.key
+    @header = Buffer.alloc(4096)
+    @header_size = 0
+
+
+  unpackHeader: () ->
+    index = 0
+    @header_size = @header.readInt16LE(index)
+    index = index + 2
+    algorithm_size = @header.readInt16LE(index)
+    index = index + 2
+    @algorithm = @header.slice(index, index + algorithm_size).toString('latin1')
+    index = index + algorithm_size
+    encrypted_key_size = @header.readInt16LE(index)
+    encrypted_key = @header.slice(index, index + encrypted_key_size)
+    index = index + encrypted_key_size
+    iv_size = @header.readInt16LE(index)
+    @iv = @header.slice(index, index + iv_size)
+
+    ## Now, let's decrypted the key, and build a decryption cipher
+    @key = crypto.privateDecrypt(@key, encrypted_key)
+
+    ## And here's the new cipher
+    @cipher = crypto.createCipheriv(@algorithm, key, iv)
+    @cipher.on 'data', (buffer) ->
+      console.log 'cipher data', buffer
+      self.push buffer
+    @cipher.on 'error', (error) ->
+      console.log 'cipher error', error
+
 
   _transform: (chunk, encoding, callback) ->
-    chunk = Buffer.from(chunk, encoding)
+    chunk = if Buffer.isBuffer(chunk) then chunk else Buffer.from(chunk, encoding)
+    if ! @header_read
+
+      @header.fill(chunk, @header_index)
+      @header_index = @header_index + chunk.length
+      unpackHeader()
+
+      ## We might well have a bit of chunk left over, so if we do, let's
+      ## chop if off and run it through the cipher. This isn't just a block
+      ## after 4096, it depends on the header block size.
+
+
     @push chunk
     callback()
+
+
+  _flush: (callback) ->
+    console.log "Encrypter _flush"
+    @cipher.end () ->
+      console.log "Encrypter _flush complete"
+      callback()
+
+
+
+
+
 
 
 module.exports =
