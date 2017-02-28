@@ -40,4 +40,5 @@ enc.on 'drain', (e) ->
   console.log "drain", e
 
 
-input.pipe(enc).pipe concat (data) -> logger.info(data)
+input.pipe(enc).pipe concat (data) ->
+  logger.info(data.toString('hex'))

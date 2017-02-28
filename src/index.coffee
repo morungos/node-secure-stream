@@ -125,7 +125,7 @@ class Decrypter extends Transform
 
       @header.fill(chunk, @header_index)
       @header_index = @header_index + chunk.length
-      unpackHeader()
+      @unpackHeader()
 
       ## We might well have a bit of chunk left over, so if we do, let's
       ## chop if off and run it through the cipher. This isn't just a block
