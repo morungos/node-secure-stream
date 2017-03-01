@@ -1,6 +1,6 @@
 fs = require('fs')
 
-StringToStream = require('string-to-stream')
+StringToStream = require('./blocked-string-to-stream')
 concat = require('concat-stream')
 
 log4js = require('log4js')
@@ -20,7 +20,7 @@ input_string = 'your text here'
 
 console.log "Input length", input_string.length
 
-input = StringToStream(input_string)
+input = StringToStream([input_string])
 
 enc = new SecureStreams.Encrypter({public_key: public_key})
 enc.getRandomBytes = () ->

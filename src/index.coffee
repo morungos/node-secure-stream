@@ -35,6 +35,7 @@ class Encrypter extends Transform
 
     ## Make a regular cipher object. This handles the writing of all
     ## subsequent data.
+    logger.debug "initialize createCipheriv", @algorithm, key, iv
     @cipher = crypto.createCipheriv(@algorithm, key, iv)
     @cipher.on 'data', (buffer) ->
       logger.debug 'cipher data', buffer
@@ -127,7 +128,8 @@ class Decrypter extends Transform
     logger.debug "unpackHeader decrypted", encrypted_key, 'to', @key
 
     ## And here's the new cipher
-    @cipher = crypto.createCipheriv(@algorithm, @key, @iv)
+    logger.debug "unpackHeader createDecipheriv", @algorithm, @key, @iv
+    @cipher = crypto.createDecipheriv(@algorithm, @key, @iv)
     @cipher.on 'data', (buffer) ->
       logger.debug 'cipher data', buffer
       self.push buffer
@@ -145,30 +147,34 @@ class Decrypter extends Transform
     if ! @header_complete
       @header.fill(chunk, @header_index)
       @header_index = @header_index + chunk.length
-      logger.debug "Added chunk", chunk, @header_index
+      logger.debug "Added chunk", @header_index, chunk
 
       if @header_index >= 2
         @header_size = @header.readInt16LE(0)
+        logger.debug "Worked out @header_size", @header_size
       else
         return callback()
 
-      header_end = @header_index + chunk.length
-      if header_end < @header_size
+      if !@header_size? || @header_index < @header_size
         return callback()
 
+      logger.debug 'XXXX', @header_size, @header_index, chunk.length
 
       header_buffer = @header.slice(0, @header_size)
+      chunk = chunk.slice(chunk.length - (@header_index - @header_size))
 
       @header = header_buffer
       @unpackHeader()
+
+      logger.debug "Remaining", chunk, chunk.length
 
       ## We might well have a bit of chunk left over, so if we do, let's
       ## chop if off and run it through the cipher. This isn't just a block
       ## after 4096, it depends on the header block size.
 
-
-    @push chunk
-    callback()
+    result = @cipher.write chunk, encoding, () ->
+      logger.debug "Decrypter write cipher result", result
+      callback()
 
 
   _flush: (callback) ->
