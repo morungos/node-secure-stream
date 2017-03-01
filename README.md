@@ -38,5 +38,5 @@ For decryption:
 Essentially the same as `hybrid-rsa-stream`, kind of
 
  * asymmetric ciphertext length (UInt16BE, 2 bytes)]
- * asymmetric ciphertext, i.e., key, iv
+ * asymmetric ciphertext, i.e., algorithm, key, iv, only key encrypted
  * symmetric ciphertext, i.e., encrypted data
