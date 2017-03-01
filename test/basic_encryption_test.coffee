@@ -42,4 +42,7 @@ describe 'SecureStreams.Encrypter', () ->
 
     input.pipe(enc).pipe concat (data) ->
       expect(data.toString('hex')).to.exist
+
+      ## Check the last block, with the clamped random key and IV
+      expect(data.slice(data.length - 16).toString('hex')).to.equal('1121ebe4d7ae4aab810d123acfc15109')
       done()
