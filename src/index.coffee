@@ -2,6 +2,9 @@ crypto = require('crypto')
 
 Transform = require('stream').Transform
 
+log4js = require('log4js')
+logger = log4js.getLogger 'node-secure-stream'
+
 class Encrypter extends Transform
 
   constructor: (options) ->
@@ -27,17 +30,17 @@ class Encrypter extends Transform
     keys = @getRandomBytes(16 + @key_length/8)
     iv = keys.slice(0, 16)
     key = keys.slice(16)
-    console.log "KEY", key
-    console.log "IV", iv
+    logger.debug "KEY", key
+    logger.debug "IV", iv
 
     ## Make a regular cipher object. This handles the writing of all
     ## subsequent data.
     @cipher = crypto.createCipheriv(@algorithm, key, iv)
     @cipher.on 'data', (buffer) ->
-      console.log 'cipher data', buffer
+      logger.debug 'cipher data', buffer
       self.push buffer
     @cipher.on 'error', (error) ->
-      console.log 'cipher error', error
+      logger.debug 'cipher error', error
 
     ## Now, we need to manage the RSA handling of the AES key.
     encrypted_key = crypto.publicEncrypt(@public_key, key)
@@ -59,7 +62,7 @@ class Encrypter extends Transform
 
     @push header.slice(0, index)
     @header_written = true
-    console.log "Cipher initialized"
+    logger.debug "Cipher initialized"
 
 
   _transform: (chunk, encoding, callback) ->
@@ -69,16 +72,16 @@ class Encrypter extends Transform
 
       @initialize()
 
-    console.log "Encrypter _write", chunk, encoding
+    logger.debug "Encrypter _write", chunk, encoding
     result = @cipher.write chunk, encoding, () ->
-      console.log "Encrypter write cipher result", result
+      logger.debug "Encrypter write cipher result", result
       callback()
 
 
   _flush: (callback) ->
-    console.log "Encrypter _flush"
+    logger.debug "Encrypter _flush"
     @cipher.end () ->
-      console.log "Encrypter _flush complete"
+      logger.debug "Encrypter _flush complete"
       callback()
 
 
@@ -87,44 +90,76 @@ class Decrypter extends Transform
 
   constructor: (options) ->
     super(options)
-    @header_read = false
+    @header_complete = false
     @key = options.key
     @header = Buffer.alloc(4096)
     @header_size = 0
+    @header_index = 0
 
 
   unpackHeader: () ->
+    self = @
     index = 0
     @header_size = @header.readInt16LE(index)
+    logger.debug "unpackHeader @header_size", @header_size
     index = index + 2
     algorithm_size = @header.readInt16LE(index)
+    logger.debug "unpackHeader algorithm_size", algorithm_size
     index = index + 2
     @algorithm = @header.slice(index, index + algorithm_size).toString('latin1')
+    logger.debug "unpackHeader @algorithm", @algorithm
     index = index + algorithm_size
     encrypted_key_size = @header.readInt16LE(index)
+    logger.debug "unpackHeader encrypted_key_size", encrypted_key_size
+    index = index + 2
     encrypted_key = @header.slice(index, index + encrypted_key_size)
+    logger.debug "unpackHeader encrypted_key", encrypted_key
     index = index + encrypted_key_size
     iv_size = @header.readInt16LE(index)
+    logger.debug "unpackHeader iv_size", iv_size
+    index = index + 2
     @iv = @header.slice(index, index + iv_size)
+    logger.debug "unpackHeader @iv", @iv
+    index = index + iv_size
 
     ## Now, let's decrypted the key, and build a decryption cipher
     @key = crypto.privateDecrypt(@key, encrypted_key)
+    logger.debug "unpackHeader decrypted", encrypted_key, 'to', @key
 
     ## And here's the new cipher
-    @cipher = crypto.createCipheriv(@algorithm, key, iv)
+    @cipher = crypto.createCipheriv(@algorithm, @key, @iv)
     @cipher.on 'data', (buffer) ->
-      console.log 'cipher data', buffer
+      logger.debug 'cipher data', buffer
       self.push buffer
     @cipher.on 'error', (error) ->
-      console.log 'cipher error', error
+      logger.debug 'cipher error', error
+
+    logger.debug "unpackHeader done"
+    @header_complete = true
 
 
   _transform: (chunk, encoding, callback) ->
     chunk = if Buffer.isBuffer(chunk) then chunk else Buffer.from(chunk, encoding)
-    if ! @header_read
+    logger.debug "Got chunk", chunk, encoding
 
+    if ! @header_complete
       @header.fill(chunk, @header_index)
       @header_index = @header_index + chunk.length
+      logger.debug "Added chunk", chunk, @header_index
+
+      if @header_index >= 2
+        @header_size = @header.readInt16LE(0)
+      else
+        return callback()
+
+      header_end = @header_index + chunk.length
+      if header_end < @header_size
+        return callback()
+
+
+      header_buffer = @header.slice(0, @header_size)
+
+      @header = header_buffer
       @unpackHeader()
 
       ## We might well have a bit of chunk left over, so if we do, let's
@@ -137,14 +172,10 @@ class Decrypter extends Transform
 
 
   _flush: (callback) ->
-    console.log "Encrypter _flush"
+    logger.debug "Decrypter _flush"
     @cipher.end () ->
-      console.log "Encrypter _flush complete"
+      logger.debug "Decrypter _flush complete"
       callback()
-
-
-
-
 
 
 

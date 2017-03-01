@@ -6,7 +6,7 @@ concat = require('concat-stream')
 log4js = require('log4js')
 log4js.configure({appenders: [{type: "console"}], levels: {"[all]" : "DEBUG"}})
 
-logger = log4js.getLogger 'test/basic_test'
+logger = log4js.getLogger 'test/basic_decryption_test'
 
 private_key = fs.readFileSync('test/testkey.pem', "utf8")
 
@@ -22,13 +22,13 @@ input = StringToStream(Buffer.from(input_string, 'hex'))
 
 dec = new SecureStreams.Decrypter({key: private_key})
 dec.on 'data', (e) ->
-  console.log "Encoding", e
+  logger.debug "Decoding", e
 dec.on 'close', (e) ->
-  console.log "close", e
+  logger.debug "close", e
 dec.on 'finish', (e) ->
-  console.log "finish", e
+  logger.debug "finish", e
 dec.on 'drain', (e) ->
-  console.log "drain", e
+  logger.debug "drain", e
 
 input.pipe(dec).pipe concat (data) ->
   logger.info(data.toString())

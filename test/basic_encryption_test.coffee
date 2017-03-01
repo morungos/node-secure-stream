@@ -6,7 +6,7 @@ concat = require('concat-stream')
 log4js = require('log4js')
 log4js.configure({appenders: [{type: "console"}], levels: {"[all]" : "DEBUG"}})
 
-logger = log4js.getLogger 'test/basic_test'
+logger = log4js.getLogger 'test/basic_encryption_test'
 
 public_key = fs.readFileSync('test/testkey.pub', "utf8")
 
