@@ -1,6 +1,6 @@
 {
   "name": "node-secure-stream",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Stream-based encryption for large amounts of data",
   "main": "lib/index.js",
   "scripts": {
