@@ -1,6 +1,6 @@
 {
   "name": "node-secure-stream",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Stream-based encryption for large amounts of data",
   "main": "lib/index.js",
   "scripts": {
@@ -13,11 +13,9 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "chai": "^3.5.0",
-    "coffee-script": "^1.10.0",
     "concat-stream": "^1.6.0",
-    "log4js": "^1.1.0",
-    "mocha": "^3.0.2",
+    "jest": "^23.6.0",
+    "log4js": "^3.0.6",
     "string-to-stream": "^1.1.0"
   },
   "author": "Stuart Watt <stuart@morungos.com>",
@@ -25,5 +23,20 @@
   "bugs": {
     "url": "https://github.com/morungos/node-secure-stream/issues"
   },
-  "homepage": "https://github.com/morungos/node-secure-stream#readme"
+  "homepage": "https://github.com/morungos/node-secure-stream#readme",
+  "jest": {
+    "moduleFileExtensions": [
+      "js"
+    ],
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/"
+    ],
+    "testRegex": "(/__tests__/.*)test\\.js$",
+    "collectCoverageFrom": [
+      "lib/**/*.js"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  }
 }
