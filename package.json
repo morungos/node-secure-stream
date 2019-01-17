@@ -1,11 +1,11 @@
 {
   "name": "node-secure-stream",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Stream-based encryption for large amounts of data",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha --sort --recursive --compilers coffee:coffee-script/register $(find test -name '*_test.*')",
-    "build": "coffee -b -o lib src"
+    "test": "jest",
+    "test-watch": "jest --watch"
   },
   "repository": {
     "type": "git",

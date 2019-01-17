@@ -26,14 +26,34 @@ For encryption:
     var enc = new SecureStreams.Encrypter({public_key: public_key})
     process.stdin.pipe(enc).pipe(process.stdout);
 
+or, to use a private key for encryption:
+
+    var SecureStreams = require('node-secure-stream');
+    var fs = require('fs');
+    var private_key = fs.readFileSync(__dirname + '/files/private');
+
+    var enc = new SecureStreams.Encrypter({private_key: private_key})
+    process.stdin.pipe(enc).pipe(process.stdout);
+
+
 For decryption:
 
     var SecureStreams = require('node-secure-stream');
     var fs = require('fs');
     var private_key = fs.readFileSync(__dirname + '/files/private');
 
-    var dec = new SecureStreams.Decrypter({key: private_key});
+    var dec = new SecureStreams.Decrypter({private_key: private_key});
     process.stdin.pipe(dec).pipe(process.stdout);
+
+or, to use a public key for decryption:
+
+    var SecureStreams = require('node-secure-stream');
+    var fs = require('fs');
+    var public_key = fs.readFileSync(__dirname + '/files/public');
+
+    var dec = new SecureStreams.Decrypter({public_key: public_key});
+    process.stdin.pipe(dec).pipe(process.stdout);
+
 
 ## Data transmitted
 
