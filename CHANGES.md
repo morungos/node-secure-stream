@@ -3,6 +3,7 @@
 
 ### Version 0.2.0 - 16th January 2019
 
+ * Allow private -> public and public -> private encryption modes
  * Breaking API change: private key for decryption is under `private_key` option, not `key`
 
 
