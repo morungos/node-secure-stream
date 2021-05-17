@@ -14,9 +14,7 @@
   "dependencies": {},
   "devDependencies": {
     "concat-stream": "^1.6.0",
-    "jest": "^23.6.0",
-    "log4js": "^3.0.6",
-    "string-to-stream": "^1.1.0"
+    "jest": "^26.6.0"
   },
   "author": "Stuart Watt <stuart@morungos.com>",
   "license": "MIT",

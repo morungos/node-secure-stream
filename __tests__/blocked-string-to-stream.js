@@ -18,7 +18,7 @@ BlockedStringStream.prototype._read = function () {
       process.nextTick(function () {
         var first = self._strings.shift()
         if (typeof first != 'undefined') {
-          self.push(new Buffer(first))
+          self.push(Buffer.from(first))
           sendBlock();
         } else {
           self.push(null)

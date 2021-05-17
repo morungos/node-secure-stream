@@ -8,11 +8,6 @@ const fs = require('fs');
 const StringToStream = require('./blocked-string-to-stream');
 const concat = require('concat-stream');
 
-// log4js = require('log4js')
-// log4js.configure({appenders: [{type: "console"}], levels: {"[all]" : "DEBUG"}})
-//
-// logger = log4js.getLogger 'test/basic_encryption_test'
-
 const public_key = fs.readFileSync('__tests__/data/testkey.pub', "utf8");
 
 const SecureStreams = require('../lib/index.js');
@@ -24,7 +19,7 @@ const fixed_bytes = Buffer.from([0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48,
                                  0x61, 0x62, 0x63, 0x64, 0x65, 0x46, 0x67, 0x68,
                                  0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, 0x70]);
 
-describe('SecureStreams.Encrypter', () =>
+describe('SecureStreams.Encrypter', () => {
 
 
   it('should encrypt a small string', function(done) {
@@ -43,4 +38,5 @@ describe('SecureStreams.Encrypter', () =>
       done();
     }));
   })
-);
+
+});
