@@ -1,5 +1,7 @@
 # node-secure-stream
 
+![test workflow](https://github.com/morungos/node-secure-stream/actions/workflows/main.yml/badge.svg)
+
 This is a module that is designed to help use asymmetric encryption over
 streams. Even though there are modules that support RSA widely, they can't
 handle large files (where large means about >2k). The recommended solution
@@ -15,43 +17,43 @@ cleanly at the top level either.
 
 ## API
 
-Very similar to `hybrid-rsa-stream`
+Very similar to [`hybrid-rsa-stream`](https://www.npmjs.com/package/hybrid-rsa-stream)
 
 For encryption:
 
-    var SecureStreams = require('node-secure-stream');
-    var fs = require('fs');
-    var public_key = fs.readFileSync(__dirname + '/files/public');
+    const SecureStreams = require('node-secure-stream');
+    const fs = require('fs');
+    const public_key = fs.readFileSync(__dirname + '/files/public');
 
-    var enc = new SecureStreams.Encrypter({public_key: public_key})
+    const enc = new SecureStreams.Encrypter({public_key: public_key})
     process.stdin.pipe(enc).pipe(process.stdout);
 
 or, to use a private key for encryption:
 
-    var SecureStreams = require('node-secure-stream');
-    var fs = require('fs');
-    var private_key = fs.readFileSync(__dirname + '/files/private');
+    const SecureStreams = require('node-secure-stream');
+    const fs = require('fs');
+    const private_key = fs.readFileSync(__dirname + '/files/private');
 
-    var enc = new SecureStreams.Encrypter({private_key: private_key})
+    const enc = new SecureStreams.Encrypter({private_key: private_key})
     process.stdin.pipe(enc).pipe(process.stdout);
 
 
 For decryption:
 
-    var SecureStreams = require('node-secure-stream');
-    var fs = require('fs');
-    var private_key = fs.readFileSync(__dirname + '/files/private');
+    const SecureStreams = require('node-secure-stream');
+    const fs = require('fs');
+    const private_key = fs.readFileSync(__dirname + '/files/private');
 
-    var dec = new SecureStreams.Decrypter({private_key: private_key});
+    const dec = new SecureStreams.Decrypter({private_key: private_key});
     process.stdin.pipe(dec).pipe(process.stdout);
 
 or, to use a public key for decryption:
 
-    var SecureStreams = require('node-secure-stream');
-    var fs = require('fs');
-    var public_key = fs.readFileSync(__dirname + '/files/public');
+    const SecureStreams = require('node-secure-stream');
+    const fs = require('fs');
+    const public_key = fs.readFileSync(__dirname + '/files/public');
 
-    var dec = new SecureStreams.Decrypter({public_key: public_key});
+    const dec = new SecureStreams.Decrypter({public_key: public_key});
     process.stdin.pipe(dec).pipe(process.stdout);
 
 
@@ -66,6 +68,6 @@ Essentially the same as `hybrid-rsa-stream`, kind of
 
 ## License
 
-Copyright (c) 2017. Stuart Watt.
+Copyright (c) 2017-2021. Stuart Watt.
 
 Licensed under the MIT License.
